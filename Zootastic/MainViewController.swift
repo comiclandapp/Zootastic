@@ -11,7 +11,7 @@
 import UIKit
 import CoreData
 
-public class MainViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate, UIActionSheetDelegate {
+public class MainViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate {
     
     open var context: NSManagedObjectContext!
     @IBOutlet weak var tableView: UITableView!
@@ -28,9 +28,7 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
             try fetchedResultsController.performFetch()
         } catch {
             print("An error occurred")
-            
         }
-        
     }
     
     func configureFetchedResultsController() {
@@ -46,7 +44,6 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
             cacheName: nil)
         
         self.fetchedResultsController.delegate = self
-        
     }
     
     override public func didReceiveMemoryWarning() {
@@ -92,8 +89,8 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     // MARK: TableView Delegate
-    public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == UITableViewCellEditingStyle.delete {
+    public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCell.EditingStyle.delete {
             let animal = fetchedResultsController.object(at: indexPath)
             confirmDeleteForAnimal(animal)
         }
@@ -103,19 +100,23 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
     
     func confirmDeleteForAnimal(_ animal: Animal) {
         self.animalToDelete = animal
-        let confirmDeleteActionSheet = UIActionSheet(title: "Are you sure you want to permanently delete \(animal.commonName)?", delegate: self, cancelButtonTitle: "Cancel", destructiveButtonTitle: "Delete")
-        confirmDeleteActionSheet.show(in: self.view)
-    }
-    
-    // MARK: UIActionSheetDelegate methods
-    public func actionSheet(_ actionSheet: UIActionSheet, clickedButtonAt buttonIndex: Int) {
-        if buttonIndex == 0 {
-            deleteAnimal()
-        } else {
+        
+        let actionSheet = UIAlertController(title: "\(animal.commonName)?",
+                                            message: "Are you sure you want to permanently delete \(animal.commonName)?",
+                                            preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Cancel",
+                                            style: .cancel,
+                                            handler: { action in
             self.animalToDelete = nil
-        }
+        }))
+        actionSheet.addAction(UIAlertAction(title: "Delete",
+                                            style: .destructive,
+                                            handler: { [self] action in
+            deleteAnimal()
+        }))
+        present(actionSheet, animated: true)
     }
-    
+
     func deleteAnimal() {
         if let verseToDelete = self.animalToDelete {
             self.context.delete(verseToDelete)
@@ -123,7 +124,7 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
                 try self.context.save()
             } catch {
             }
-            
+
             self.animalToDelete = nil
         }
     }
@@ -143,11 +144,11 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
         switch type {
         case NSFetchedResultsChangeType.insert:
             if let insertIndexPath = newIndexPath {
-                self.tableView.insertRows(at: [insertIndexPath], with: UITableViewRowAnimation.fade)
+                self.tableView.insertRows(at: [insertIndexPath], with: UITableView.RowAnimation.fade)
             }
         case NSFetchedResultsChangeType.delete:
             if let deleteIndexPath = indexPath {
-                self.tableView.deleteRows(at: [deleteIndexPath], with: UITableViewRowAnimation.fade)
+                self.tableView.deleteRows(at: [deleteIndexPath], with: UITableView.RowAnimation.fade)
             }
         case NSFetchedResultsChangeType.update:
             if let updateIndexPath = indexPath {
@@ -159,12 +160,14 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
             }
         case NSFetchedResultsChangeType.move:
             if let deleteIndexPath = indexPath {
-                self.tableView.deleteRows(at: [deleteIndexPath], with: UITableViewRowAnimation.fade)
+                self.tableView.deleteRows(at: [deleteIndexPath], with: UITableView.RowAnimation.fade)
             }
             
             if let insertIndexPath = newIndexPath {
-                self.tableView.insertRows(at: [insertIndexPath], with: UITableViewRowAnimation.fade)
+                self.tableView.insertRows(at: [insertIndexPath], with: UITableView.RowAnimation.fade)
             }
+        @unknown default:
+            fatalError()
         }
     }
     
@@ -177,10 +180,10 @@ public class MainViewController: UIViewController, UITableViewDataSource, UITabl
         switch type {
         case .insert:
             let sectionIndexSet = IndexSet(integer: sectionIndex)
-            self.tableView.insertSections(sectionIndexSet, with: UITableViewRowAnimation.fade)
+            self.tableView.insertSections(sectionIndexSet, with: UITableView.RowAnimation.fade)
         case .delete:
             let sectionIndexSet = IndexSet(integer: sectionIndex)
-            self.tableView.deleteSections(sectionIndexSet, with: UITableViewRowAnimation.fade)
+            self.tableView.deleteSections(sectionIndexSet, with: UITableView.RowAnimation.fade)
         default:
             break
         }

@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Andrew Bancroft. All rights reserved.
 //
 
-import Foundation
 import UIKit
 import CoreData
 

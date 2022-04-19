@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Andrew Bancroft. All rights reserved.
 //
 
-import Foundation
 import CoreData
 
 public class Classification: NSManagedObject {
@@ -15,5 +14,4 @@ public class Classification: NSManagedObject {
 	@NSManaged var family: String
 	@NSManaged var order: String
     @NSManaged var animals: NSSet
-
 }
